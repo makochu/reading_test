@@ -1,0 +1,40 @@
+---
+- name: apache_01
+  yum:
+    name: "{{ httpd_package }}"
+    state: present
+
+- name: apache_02
+  systemd:
+    name: "{{ httpd_service }}"
+    state: started
+    enabled: true
+
+- name: Put
+  template:
+    src: index.html.j2
+    dest: "{{ httpd_index_path }}"
+    owner: "{{ httpd_owner }}"
+    group: "{{ httpd_group }}"
+    mode: "{{ httpd_mode }}"
+
+- name: firewalld_01
+  yum:
+    name: firewalld
+    state: present
+
+- name: firewall_02
+  firewalld:
+    zone: public
+    port: "{{ httpd_port }}/tcp"
+    permanent: true
+    state: enabled
+  register: _httpd_firewalld_result
+
+- name: firewalld_03
+  systemd:
+    name: firewalld.service
+    state: restarted
+  when: _httpd_firewalld_result.changed
+  tags:
+    - skip_ansible_lint

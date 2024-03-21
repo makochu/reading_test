@@ -1,0 +1,4 @@
+---
+- include_tasks: pre_value_check.yml
+- include_tasks: tomcat_install.yml
+- include_tasks: post_check.yml

@@ -1,0 +1,8 @@
+---
+- name: Check values of the variables should have primitive values
+  assert:
+    that:
+      - postgres_port is number
+      - postgres_port >= 1
+      - postgres_port <= 65535
+    fail_msg: "The port number must be entered as a number between 1-65535."

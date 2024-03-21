@@ -1,0 +1,32 @@
+---
+- name: Install Tomcat
+  yum:
+    name: "{{ tomcat_packages }}"
+    state: present
+
+- name: Start and enable Tomcart
+  systemd:
+    name: "{{ tomcat_service }}"
+    state: started
+    enabled: true
+
+- name: Install firewalld
+  yum:
+    name: firewalld
+    state: present
+
+- name: Set firewall policy
+  firewalld:
+    zone: public
+    port: "{{ tomcat_port }}/tcp"
+    permanent: true
+    state: enabled
+  register: _tomcat_firewalld_result
+
+- name: Restart firewalld
+  systemd:
+    name: firewalld.service
+    state: restarted
+  when: _tomcat_firewalld_result.changed
+  tags:
+    - skip_ansible_lint

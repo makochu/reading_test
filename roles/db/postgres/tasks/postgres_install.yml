@@ -1,0 +1,50 @@
+---
+- name: Install PostgreSQL
+  yum:
+    name: "{{ postgres_package }}"
+    state: present
+
+- name: init DB Cluster
+  command: "{{ postgres_setup }}"
+  args:
+    creates: "{{ postgres_datadir }}/PG_VERSION"
+
+- name: Put postgresql.conf
+  template:
+    src: "postgresql.conf.j2"
+    dest: "{{ postgres_datadir }}/postgresql.conf"
+    owner: "{{ postgres_user }}"
+    group: "{{ postgres_user }}"
+    mode: "{{ postgres_mode }}"
+
+- name: Start and enable PostgreSQL
+  systemd:
+    name: "{{ postgres_service }}"
+    state: started
+    enabled: true
+
+- name: Change password
+  user:
+    name: "{{ postgres_user }}"
+    password: "{{ postgres_passwd  | password_hash('sha512') }}"
+
+- name: Install firewalld
+  yum:
+    name: firewalld
+    state: present
+
+- name: Set firewall policy
+  firewalld:
+    zone: public
+    port: "{{ postgres_port }}/tcp"
+    permanent: true
+    state: enabled
+  register: _postgres_firewalld_result
+
+- name: Restart firewalld
+  systemd:
+    name: firewalld.service
+    state: restarted
+  when: _postgres_firewalld_result.changed
+  tags:
+    - skip_ansible_lint

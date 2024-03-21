@@ -1,0 +1,9 @@
+---
+- name: Web Servers
+  import_playbook: httpd.yml
+
+- name: DB Servers
+  import_playbook: postgres.yml
+
+- name: Tomcat Servers
+  import_playbook: tomcat.yml

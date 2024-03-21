@@ -1,0 +1,45 @@
+---
+- name: Check postgres is installed
+  command:
+    cmd: "rpm -q {{ postgres_package }}"
+  changed_when: false
+  # 以下、commandモジュール実行時のエラー判定として裏で動いているものを
+  # 動作の確認をよりわかりやすくするためにあえて可視化してみました。
+  # 実際のplaybook構築時は無くても問題ありません。
+  register: _postgres_check_rpm_result
+  failed_when: _postgres_check_rpm_result.rc != 0
+  tags:
+    - skip_ansible_lint
+
+- name: Check postgres is enabled
+  command:
+    cmd: "systemctl is-enabled {{ postgres_service }}"
+  changed_when: false
+  register: _postgres_check_systemd_enable_result
+  failed_when: _postgres_check_systemd_enable_result.rc != 0
+  tags:
+    - skip_ansible_lint
+
+- name: Check postgres is active
+  command:
+    cmd: "systemctl is-active {{ postgres_service }}"
+  changed_when: false
+  register: _postgres_check_systemd_actvie_result
+  failed_when: _postgres_check_systemd_actvie_result.rc != 0
+  tags:
+    - skip_ansible_lint
+
+- name: Check firewalld is configured
+  command:
+    cmd: "firewall-cmd --list-ports --zone public"
+  changed_when: false
+  register: _postgres_check_firewall_result
+  failed_when: "'%d/tcp' % postgres_port not in _postgres_check_firewall_result.stdout"
+  tags:
+    - skip_ansible_lint
+
+- name: Check postgres port is opened
+  wait_for:
+    timeout: 60
+    port: "{{ postgres_port }}"
+    delay: 5

@@ -1,0 +1,10 @@
+---
+postgres_port: 5432
+postgres_package: "postgresql-server"
+postgres_service: "postgresql.service"
+postgres_datadir: "/var/lib/pgsql/data"
+postgres_setup: "postgresql-setup initdb"
+postgres_user: "postgres"
+# vault_postgres_passwd 変数は group_vars/passwd/postgres_passwd にて定義
+postgres_passwd: "{{ vault_postgres_passwd }}"
+postgres_mode: "0600"

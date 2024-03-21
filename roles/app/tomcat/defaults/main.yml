@@ -1,0 +1,7 @@
+---
+tomcat_port: 8080
+tomcat_packages:
+  - "java-1.7.0-openjdk"
+  - "tomcat"
+  - "tomcat-webapps"
+tomcat_service: "tomcat.service"

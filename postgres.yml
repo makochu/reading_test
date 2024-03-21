@@ -1,0 +1,5 @@
+---
+- name: Install DB Server
+  hosts: db_server
+  roles:
+     - ./roles/db/postgres

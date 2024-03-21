@@ -1,0 +1,9 @@
+---
+port: 80
+package: "httpd"
+service: "httpd.service"
+index_path: "/var/www/html/index.html"
+content: "{{ inventory_hostname }}"
+owner: "apache"
+group: "apache"
+mode: "0755"

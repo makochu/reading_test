@@ -1,0 +1,44 @@
+---
+- name: Check tomcat packages is installed
+  command:
+    cmd: "rpm -q {{ tomcat_packages|join(' ') }}"
+  changed_when: false
+  tags:
+    - skip_ansible_lint
+
+- name: Check tomcat is enabled
+  command:
+    cmd: "systemctl is-enabled {{ tomcat_service }}"
+  changed_when: false
+  register: _tomcat_check_systemd_enable_result
+  failed_when: _tomcat_check_systemd_enable_result.rc != 0
+  tags:
+    - skip_ansible_lint
+
+- name: Check tomcat is active
+  command:
+    cmd: "systemctl is-active {{ tomcat_service }}"
+  changed_when: false
+  register: _tomcat_check_systemd_actvie_result
+  failed_when: _tomcat_check_systemd_actvie_result.rc != 0
+  tags:
+    - skip_ansible_lint
+
+- name: Check firewalld is configured
+  command:
+    cmd: "firewall-cmd --list-ports --zone public"
+  changed_when: false
+  register: _tomcat_check_firewall_result
+  failed_when: "'%d/tcp' % tomcat_port not in _tomcat_check_firewall_result.stdout.split()"
+
+- name: Check tomcat port is opened
+  wait_for:
+    timeout: 60
+    port: "{{ tomcat_port }}"
+    delay: 5
+
+- name: Check http access
+  uri:
+    url: "http://{{ inventory_hostname }}:{{ tomcat_port }}/"
+    status_code: 200
+  register: _tomcat_check_access_result

@@ -1,0 +1,5 @@
+---
+- name: Install App Server
+  hosts: app_server
+  roles:
+     - ./roles/app/tomcat
