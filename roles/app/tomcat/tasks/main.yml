@@ -1,4 +1,9 @@
 ---
-- include_tasks: pre_value_check.yml
-- include_tasks: tomcat_install.yml
-- include_tasks: post_check.yml
+- name: Include pre_value_check.yml
+  include_tasks: pre_value_check.yml
+
+- name: Include tomcat_install.yml
+  include_tasks: tomcat_install.yml
+
+- name: Include post_check.yml
+  include_tasks: post_check.yml
